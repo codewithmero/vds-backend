@@ -6,6 +6,9 @@ const asyncHandler = (requestHandler) => {
 
 export { asyncHandler };
 
+
+
+
 // TRY-CATCH VARIANT;
 // const asyncHandler = (fn) => async (req, res, next) => {
 //     try {
