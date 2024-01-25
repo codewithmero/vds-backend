@@ -4,6 +4,7 @@ export const generateAccessAndRefreshTokens = async (userId) => {
     try {
 
         const user =  await User.findById(userId)
+
         let accessToken = user.generateAccessToken();
         let refreshToken = user.generateRefreshToken();
 

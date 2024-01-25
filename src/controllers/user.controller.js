@@ -145,8 +145,8 @@ const logoutUser = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(
         user?._id,
         {
-            $set: {
-                refreshToken: null
+            $unset: {
+                refreshToken: 1  // this removes/unset the field from the db record;
             }
         },
         {
@@ -186,8 +186,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     
         if(incomingRefreshToken !== user?.refreshToken)
             throw new ApiError(401, "Refresh token has expired or used!");
-    
-        let { accessToken, refreshToken } = generateAccessAndRefreshTokens(user?._id);
+        
+        let { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user?._id);
     
         let cookieOptions = {
             httpOnly: true,
@@ -208,6 +208,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
                 )
             )
     } catch (error) {
+        console.log("Error:::", error);
         throw new ApiError(
             401,
             error?.message || "Invalid refresh token!"
@@ -280,7 +281,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 });
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
-    let avatarLocalPath = req.file?.avatar?.[0]?.path || null;
+    let avatarLocalPath = req.file?.path || null;
     if(!avatarLocalPath)
         throw new ApiError(400, "No avatar image found!");
 
@@ -306,7 +307,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 });
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
-    let coverImageLocalPath = req.file?.coverImage?.[0]?.path || null;
+    let coverImageLocalPath = req.file?.path || null;
     if(!coverImageLocalPath)
         throw new ApiError(400, "No cover image found!");
 
@@ -442,7 +443,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
                         }
                     },
                     {
-                        $addField: {
+                        $addFields: {
                             owner: {
                                 $first: "$owner"
                             }
